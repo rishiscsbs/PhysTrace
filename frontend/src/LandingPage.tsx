@@ -77,19 +77,18 @@ export default function LandingPage({ setCurrentView }: { setCurrentView: (v: Vi
     mm.add(WIDE, () => {
       setStep(-1);
       const q = gsap.utils.selector(stage);
-      const cards = q(".pt-slide"), lines = q(".pt-line"), tips = q(".pt-tip");
+      const cards = q(".pt-slide");
       const tl = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
           trigger: stage.current, start: "top top", end: "+=200%", pin: true, scrub: true, invalidateOnRefresh: true,
-          // Each card owns one unit of the timeline: slide [0, 0.6], draw [0.6, 1]. Its connector is "active" from landing on.
+          // Each card owns one unit of the timeline and slides in over [0, 0.6]. Once it lands, step reaches it and
+          // Framer Motion draws its connector on a fixed clock (see the SVG below).
           onUpdate: (self) => setStep(Math.min(MODULES.length - 1, Math.floor(self.progress * MODULES.length + 0.4) - 1)),
         },
       });
       MODULES.forEach((_, i) => {
-        tl.fromTo(cards[i], { y: () => window.innerHeight, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.6, ease: "power2.out" }, i)
-          .fromTo(lines[i], { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.35 }, i + 0.6)
-          .fromTo(tips[i], { scale: 0 }, { scale: 1, duration: 0.05, transformOrigin: "50% 50%" }, i + 0.95);
+        tl.fromTo(cards[i], { y: () => window.innerHeight, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.6, ease: "power2.out" }, i);
       });
       return () => setStep(MODULES.length - 1);
     });
@@ -171,12 +170,21 @@ export default function LandingPage({ setCurrentView }: { setCurrentView: (v: Vi
                   const on = (hover ?? MODULES[step]?.id) === m.id;
                   const y0 = STACK_H / 2, y1 = rowMid(i), mx = ARROW_W / 2;
                   const d = `M0,${y0} H${mx} V${y1} H${ARROW_W - 4}`;
+                  const drawn = i <= step;
                   return (
                     <g key={m.id} opacity={on ? 1 : 0.45} style={{ transition: "opacity 0.3s" }}>
-                      {/* pathLength=1 lets GSAP draw the line by scrubbing the dash offset from 1 to 0. */}
-                      <path className="pt-line" d={d} pathLength={1} strokeDasharray={1} fill="none" stroke={m.accent} strokeWidth={on ? 3 : 1.5} />
-                      {on && i <= step && <path d={d} fill="none" stroke="#fff" strokeWidth={1.5} className="pt-flow" />}
-                      <circle className="pt-tip" cx={ARROW_W - 4} cy={y1} r={5} fill={m.accent} />
+                      {/* Draws engine → card after the card lands; the 0.2s delay lets the slide finish first. */}
+                      <motion.path d={d} fill="none" stroke={m.accent} strokeWidth={on ? 3 : 1.5}
+                        initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: drawn ? 1 : 0, opacity: drawn ? 1 : 0 }}
+                        transition={{ duration: 0.8, ease: "easeInOut", delay: drawn ? 0.2 : 0 }} />
+                      {/* The flowing dashes would show the full route instantly, so they wait until the draw completes. */}
+                      {on && drawn && (
+                        <motion.path d={d} fill="none" stroke="#fff" strokeWidth={1.5} className="pt-flow"
+                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 1.0 }} />
+                      )}
+                      <motion.circle cx={ARROW_W - 4} cy={y1} r={5} fill={m.accent} style={{ transformBox: "fill-box", transformOrigin: "center" }}
+                        initial={{ scale: 0 }} animate={{ scale: drawn ? 1 : 0 }}
+                        transition={{ duration: 0.25, ease: EASE, delay: drawn ? 1.0 : 0 }} />
                     </g>
                   );
                 })}
