@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Frontend
+node_modules/
+frontend/dist/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated files
+coverage/
+.DS_Store
+Thumbs.db
+
+# Local database files
+data/*.sqlite3
+data/*.sqlite3-*

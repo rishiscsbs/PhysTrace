@@ -1,0 +1,33 @@
+html, body { margin: 0; }
+body {
+  /* Stark alabaster + static 1px architectural grid (pure CSS: no rendering cost). */
+  background-color: #F8F9FA;
+  background-image: linear-gradient(#EEF2F6 1px, transparent 1px), linear-gradient(90deg, #EEF2F6 1px, transparent 1px);
+  background-size: 40px 40px;
+  /* Fixed, so the lines stay registered with the fixed interactive-grid cells while the page scrolls. */
+  background-attachment: fixed;
+  color: #0B0D10;
+  font-family: Inter, "Helvetica Neue", sans-serif;
+  /* Live telemetry must not jitter as digits change. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3 { letter-spacing: -0.02em; }
+svg text { font-variant-numeric: tabular-nums; }
+/* The same grid drawn over the opaque fluid canvas. */
+.pt-gridlines {
+  /* Translucent, so the lines read the same on alabaster (#EEF2F6) and stay faintly visible through the ink. */
+  background-image: linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+/* The kiosk's live screen is display-only, so drags on it reach the canvas and rotate the model. */
+.htmlScreen { pointer-events: none; }
+/* Interactive grid: lit instantly under the cursor, fades out over 500ms. The 1px inset keeps the grid line visible. */
+.pt-cell { margin: 1px 0 0 1px; transition: background-color 500ms ease-out; }
+/* Translucent slate: reads as #E2E8F0 on alabaster but lets the fluid ink show through. */
+.pt-cell.on { background-color: rgba(148, 163, 184, 0.22); transition-duration: 0ms; }
+/* While the custom cursor is mounted. */
+.pt-nocursor, .pt-nocursor * { cursor: none !important; }
+button:focus-visible, a:focus-visible { outline: 2px solid #0052FF; outline-offset: 2px; }
