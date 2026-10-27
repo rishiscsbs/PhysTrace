@@ -166,4 +166,4 @@ Inject one with `POST /api/scenarios`, e.g. `{"type": "SENSOR_REPLAY", "start_in
 
 ## License
 
-No license has been chosen yet. All rights reserved by the author until one is added.
+Released under the [MIT License](LICENSE).
